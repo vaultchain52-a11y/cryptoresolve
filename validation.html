@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoResolve | Validation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .gradient-text { background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .section-card:hover { transform: translateY(-5px); transition: all 0.3s ease; border-color: #38bdf8; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <nav class="p-6 flex justify-between items-center max-w-7xl mx-auto">
+        <div class="flex items-center space-x-2">
+            <div class="bg-blue-600 p-2 rounded-lg">
+                <i class="fas fa-shield-halved text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight">Crypto<span class="text-blue-500">Resolve</span></span>
+        </div>
+        <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-400">
+            <a href="protocols.html" class="hover:text-white">Protocols</a>
+            <a href="validation.html" class="text-white">Validation</a>
+            <a href="security.html" class="hover:text-white">Security</a>
+        </div>
+        <div class="space-x-3">
+            <a href="dapps.html" class="bg-slate-800 hover:bg-slate-700 px-5 py-2 rounded-full text-sm font-semibold">Wallets</a>
+            <a href="index.html" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-full text-sm font-bold">Home</a>
+        </div>
+    </nav>
+
+    <section class="max-w-5xl mx-auto text-center mt-14 px-4">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-5">
+            Validation and <span class="gradient-text">Integrity Checks</span>
+        </h1>
+        <p class="text-gray-400 text-lg mb-10">
+            Every wallet recovery request runs through multiple validation layers to ensure authenticity, format correctness, and chain compliance.
+        </p>
+    </section>
+
+    <section class="max-w-6xl mx-auto px-4 pb-20">
+        <div class="grid gap-6 md:grid-cols-3">
+            <div class="glass p-6 rounded-3xl section-card border border-slate-700">
+                <h2 class="text-xl font-bold mb-3">Phrase Validation</h2>
+                <p class="text-gray-400 text-sm">Validate that recovery phrases match accepted BIP39 wordlists and are structured correctly before processing.</p>
+            </div>
+            <div class="glass p-6 rounded-3xl section-card border border-slate-700">
+                <h2 class="text-xl font-bold mb-3">Keystore & Key Checks</h2>
+                <p class="text-gray-400 text-sm">Verify keystore JSON, encryption headers, and private key formats against supported wallet specifications.</p>
+            </div>
+            <div class="glass p-6 rounded-3xl section-card border border-slate-700">
+                <h2 class="text-xl font-bold mb-3">Chain Address Proof</h2>
+                <p class="text-gray-400 text-sm">Confirm wallet addresses and chain IDs are valid to avoid cross-chain or malformed recovery attempts.</p>
+            </div>
+        </div>
+
+        <div class="glass p-6 rounded-3xl mt-10 border border-slate-700">
+            <h3 class="text-2xl font-bold mb-4">Why Validation Matters</h3>
+            <ul class="list-disc pl-5 space-y-3 text-gray-400 text-sm">
+                <li>Invalid or malformed inputs are rejected before any recovery action begins.</li>
+                <li>Wallet metadata is validated to match the selected recovery method and network.</li>
+                <li>Trusted validation prevents accidental use of unsupported wallet types.</li>
+            </ul>
+        </div>
+    </section>
+
+    <footer class="text-center py-10 text-gray-500 text-xs border-t border-gray-900">
+        <p>&copy; 2026 CryptoResolve Protocol. All Rights Reserved.</p>
+    </footer>
+</body>
+</html>

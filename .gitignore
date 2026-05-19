@@ -1,0 +1,6 @@
+# Ignore local recovery storage and temporary files
+api/recovery-data.json
+*.log
+.DS_Store
+node_modules/
+.env
