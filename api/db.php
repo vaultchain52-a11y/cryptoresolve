@@ -4,10 +4,10 @@
  * Update these values with your MySQL credentials
  */
 
-$db_host = 'localhost';
-$db_name = 'codecraft';
-$db_user = 'root';        // Change to your MySQL username
-$db_pass = '';            // Change to your MySQL password
+$db_host = getenv('DB_HOST') ?: 'localhost';
+$db_name = getenv('DB_NAME') ?: 'cryptoresolve';
+$db_user = getenv('DB_USER') ?: 'root';
+$db_pass = getenv('DB_PASSWORD') ?: '';
 
 try {
     $pdo = new PDO(

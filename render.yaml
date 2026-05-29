@@ -1,8 +1,6 @@
 services:
   - type: web
-    name: Codecraft Homepage
-    env: php
+    name: cryptoresolve-1
+    runtime: docker
     branch: main
     plan: free
-    buildCommand: ""
-    startCommand: php -S 0.0.0.0:$PORT
